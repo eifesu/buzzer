@@ -6,10 +6,12 @@ const ioHandler = (req, res) => {
         console.log('*First use, starting socket.io');
 
         const io = new Server(res.socket.server)
-        let buzzes = [];
-
+        let inputs = [];
+        let index = 0;
 
         io.on('connection', socket => {
+
+
             console.log(`A user with id ${socket.id} connected`);
             socket.join("clients");
             console.log(`Currently having ${io.sockets.adapter.rooms.get("clients").size}`)
@@ -21,35 +23,47 @@ const ioHandler = (req, res) => {
 
             socket.on('stop', () => {
                 io.to("clients").emit('stop');
-                buzzes = [];
+                inputs = [];
                 console.log('Received stop signal from client.')
             })
 
-            socket.on('buzz', () => {
-                if(!buzzes.includes(socket.id)) {
-                    buzzes.push(socket.id);
-                    if(buzzes[0] == socket.id) {
-                        io.to("clients").emit("win", socket.id);
+            socket.on('buzz', (state) => {
+                const id = socket.id;
+                const {key, name, team} = state;
+                const buzz = {
+                    key,
+                    name,
+                    team,
+                    id
+                }; 
+
+                if(inputs.filter(buzz => buzz.id === socket.id).length <= 0) {
+                    inputs.push(buzz);
+                    if(inputs[0].id = socket.id) {
+                        io.to("clients").emit("win", inputs[0]);
                     }
                 }
                 console.log("LEADERBOARD")
-                for(let buzz of buzzes) {
+                for(let buzz of inputs) {
                     console.log(buzz)
                 }
-                io.to("clients").emit("buzz", buzzes);
+                io.to("clients").emit("buzz", inputs);
             })
 
-            socket.on('auth', (key) => {
-                switch(key) {
-                    case '0': {
-                        socket.emit("auth", '0')
-                    }
-                    break;
-                    case '1': {
-                        socket.emit("auth", '1')
-                    }
-                    break;
-                }
+            socket.on('auth', (input) => {
+                const {key, name, team} = input;
+                socket.emit('auth', key, name, team);
+            })
+
+            socket.on('correct', () => {
+                io.to("clients").emit('stop');
+            })
+
+            socket.on('wrong', () => {
+                index = index + 1;
+                index = index % inputs.length;  
+                io.to("clients").emit('next', index, inputs);
+                console.log(`Current index is ${index}`)
             })
         })
 

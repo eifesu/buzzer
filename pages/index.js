@@ -6,11 +6,15 @@ import Auth from "../components/Auth"
 
 function Index() {
   const [state, setState] = useState({
+    name: '',
+    team: '',
     key: null,
     ready: true,
     winner: null,
-    inputs: null,
+    inputs: [],
+    index: 0,
   })
+
  
   const [socket, setSocket] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,13 +45,17 @@ function Index() {
         console.log('Received the name of the winner');
       })
 
-      socket.on('auth', (id) => {
-        setState(prevState => ({...prevState, key: id}))
+      socket.on('auth', (key, name, team) => {
+        setState(prevState => ({...prevState, key: key, name: name, team: team}))
         console.log('Received authentication from server')
       })
 
-      socket.on('buzz', (arr) => {
-        setState(prevState => ({...prevState, inputs : arr}))
+      socket.on('buzz', (inputs) => {
+        setState(prevState => ({...prevState, inputs: inputs}))
+      })
+
+      socket.on('next', (i, inputs) => {
+        setState(prevState => ({...prevState, index: i, winner : inputs[i].id == socket.id }));
       })
 
 
@@ -63,7 +71,7 @@ function Index() {
 
       {/* { isLoading ? <Spinner /> :  } */}
  {
-        state.key === null ? <Auth socket={socket} /> 
+        state.key === null ? <Auth socket={socket} setState={setState} state={state}/> 
           : isLoading ? <Spinner />
             : <Buttons socket={socket} state={state} />
       } 

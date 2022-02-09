@@ -1,14 +1,30 @@
 import { Input, InputGroup, InputLeftElement, Button, Flex } from "@chakra-ui/react"
 import { FaKey, FaSlackHash } from "react-icons/fa"
-import {useState} from "react"
-const Auth = ({socket}) => {
+import {useState, useEffect} from "react"
+const Auth = ({socket, setState}) => {
     function auth(e) {
-        socket.emit('auth', key.trim().toLowerCase());
+        setInput(prevState => ({...prevState, 
+            key : input.key.trim().toUpperCase(),
+            name : input.name.trim().toUpperCase(),
+            team : input.team.trim().toUpperCase(),
+        }))
+
+        socket.emit('auth', input);
     }
-    const [key, setKey] = useState(null)
+    const [input, setInput] = useState({
+        key: "",
+        name: "",
+        team: ""
+    })
+
+    useEffect(() => {
+       console.log(input)
+    }, [input]);
     return (
-        <Flex align="center" justify="center" direction="column">
-                <Input onChange={(e) => setKey(e.target.value)}weight= "bold" variant="solid" type='tel' placeholder='Participant key' />
+        <Flex h="50%" align="center" justify="space-around" direction="column">
+                <Input onChange={(e) => setInput(prevState => ({...prevState, key : e.target.value}))} weight= "bold" variant="solid" type='tel' placeholder='Participant key' />
+                <Input onChange={(e) => setInput(prevState => ({...prevState, name : e.target.value}))} weight= "bold" variant="solid" type='text' placeholder='First Name' />
+                <Input onChange={(e) => setInput(prevState => ({...prevState, team : e.target.value}))} weight= "bold" variant="solid" type='text' placeholder='Team Name' />
             <Button onClick={auth} w="64px" m="4"><FaKey size="50%" /></Button>
         </Flex>
     )

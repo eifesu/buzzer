@@ -4,6 +4,8 @@ import io from "socket.io-client"
 import Buttons from "../components/Buttons"
 import Auth from "../components/Auth"
 
+
+
 function Index() {
   const [state, setState] = useState({
     name: '',
@@ -18,6 +20,7 @@ function Index() {
  
   const [socket, setSocket] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  
   useEffect(() => {
     fetch('/api/socketio').finally(() => {
       setIsLoading(true);
@@ -31,7 +34,7 @@ function Index() {
       })
 
       socket.on('start', () => {
-        setState(prevState => ({...prevState, ready: true}))
+        setState(prevState => ({...prevState, ready: true, inputs: []}))
         console.log('Received client side start from server.');
       })
 
@@ -55,7 +58,7 @@ function Index() {
       })
 
       socket.on('next', (i, inputs) => {
-        setState(prevState => ({...prevState, index: i, winner : inputs[i].id == socket.id }));
+        setState(prevState => ({...prevState, index: i, winner : inputs[i].name == socket.name }));
       })
 
 

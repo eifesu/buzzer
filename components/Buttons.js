@@ -4,8 +4,15 @@ import { AiFillStop, AiOutlineCheck } from "react-icons/ai"
 import { GiLightBulb } from "react-icons/gi"
 import {ImCross} from "react-icons/im"
 
+
 const Buzzer = ({ socket, state }) => {
-  return <Button onClick={() => socket.emit('buzz', state)} disabled={!state.ready} flex="1" w="100%" m="4" shadow="md" colorScheme={state.winner ? `green` : `blue`} borderRadius="3xl">
+
+  let audio = new Audio("/buzzer.mp3")
+  return <Button onClick={() => {
+    socket.emit('buzz', state); 
+    audio.play();
+  }}
+     disabled={!state.ready} flex="1" w="100%" m="4" shadow="md" colorScheme={state.winner ? `green` : `blue`} borderRadius="3xl">
     <FaHandPaper size="25%" />
   </Button>
 
@@ -39,11 +46,11 @@ const Moderator = ({ socket, state }) => {
         {state.inputs.length > 0 ? 
         <Flex direction="column">
           <Heading >
-          {state.inputs[state.index].name} 
+          {state.inputs[state.index].name ? state.inputs[state.index].name :  `...`} 
           </Heading>
 
           <Heading size="sm">
-          {state.inputs[state.index].team} 
+          {state.inputs[state.index].team ? state.inputs[state.index].team : `...` } 
           </Heading>
         </Flex> :  
         `...`}

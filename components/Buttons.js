@@ -1,19 +1,27 @@
 import { Button, Flex, Heading, Box } from "@chakra-ui/react";
 import { FaHandPaper } from "react-icons/fa"
 import { AiFillStop, AiOutlineCheck } from "react-icons/ai"
+import {BiRefresh} from "react-icons/bi"
 import { GiLightBulb } from "react-icons/gi"
 import {ImCross} from "react-icons/im"
 
 
 const Buzzer = ({ socket, state }) => {
 
-  let audio = new Audio("/buzzer.mp3")
+  let audio = new Audio("/cue_buzz.mp3")
   return <Button onClick={() => {
     socket.emit('buzz', state); 
+    socket.emit('ping');
     audio.play();
   }}
-     disabled={!state.ready} flex="1" w="100%" m="4" shadow="md" colorScheme={state.winner ? `green` : `blue`} borderRadius="3xl">
+     disabled={!state.ready} flex="1" w="100%" m="4" shadow="md" colorScheme={
+    state.wrong 
+    ? `red`
+    : state.correct 
+      ? `green` 
+      : `blue`} borderRadius="3xl">
     <FaHandPaper size="25%" />
+    <h1>{state.hand ? `Your turn!` : ``}</h1>
   </Button>
 
 }
@@ -68,10 +76,10 @@ const Moderator = ({ socket, state }) => {
     </Flex>
 
     <Flex  m="4" flex="1" w="100%" align="center" justify="center">
-      <Button  m="4" h="100%" flex="1" disabled={!state.ready} onClick={correct} shadow="md" colorScheme="green"   borderRadius="3xl">
-        <AiOutlineCheck size="25%" />
+      <Button  m="4" h="100%" flex="1" disabled={!state.inputs.length > 0} onClick={correct} shadow="md" colorScheme="green"   borderRadius="3xl">
+        <BiRefresh size="25%" />
       </Button>
-      <Button  m="4" h="100%" flex="1" disabled={!state.ready} onClick={wrong} shadow="md" colorScheme="red"  borderRadius="3xl">
+      <Button  m="4" h="100%" flex="1" disabled={!state.inputs.length > 0} onClick={wrong} shadow="md" colorScheme="red"  borderRadius="3xl">
         <ImCross size="25%" />
       </Button>
     </Flex>

@@ -12,15 +12,23 @@ function Index() {
     team: '',
     key: null,
     ready: true,
-    winner: null,
+    hand: null,
+    correct: null,
     inputs: [],
     index: 0,
   })
 
- 
   const [socket, setSocket] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+  let correct
+  let wrong
+  let hand
+  useEffect(() => {
+    correct = new Audio("/cue_correct.mp3")
+    wrong = new Audio("/cue_wrong.mp3")
+    hand = new Audio("/cue_hand.mp3")
+  }, []);
+
   useEffect(() => {
     fetch('/api/socketio').finally(() => {
       setIsLoading(true);
@@ -39,13 +47,8 @@ function Index() {
       })
 
       socket.on('stop', () => {
-        setState(prevState => ({...prevState, ready: false, winner: false}))
+        setState(prevState => ({...prevState, ready: false, hand: null, correct: null, wrong: null}))
         console.log('Received client side stop from server.')
-      })
-
-      socket.on('win', (id) => {
-        setState(prevState => ({...prevState, winner: socket.id == id}))
-        console.log('Received the name of the winner');
       })
 
       socket.on('auth', (key, name, team) => {
@@ -53,12 +56,17 @@ function Index() {
         console.log('Received authentication from server')
       })
 
-      socket.on('buzz', (inputs) => {
-        setState(prevState => ({...prevState, inputs: inputs}))
+      socket.on('hand', () => {
+        setState(prevState => ({...prevState, hand: true }));
       })
 
-      socket.on('next', (i, inputs) => {
-        setState(prevState => ({...prevState, index: i, winner : inputs[i].name == socket.name }));
+      socket.on('correct', () => {
+        setState(prevState => ({...prevState, wrong: null, correct: true}))
+        correct.play();
+      })
+
+      socket.on('wrong', () => {
+        setState(prevState => ({...prevState, correct: null, wrong: true}))
       })
 
 

@@ -8,6 +8,7 @@ const ioHandler = (req, res) => {
         const io = new Server(res.socket.server)
         let inputs = [];
         let index = 0;
+        let target = "";
 
         io.on('connection', socket => {
 
@@ -28,26 +29,29 @@ const ioHandler = (req, res) => {
             })
 
             socket.on('buzz', (state) => {
-                const id = socket.id;
-                const {key, name, team} = state;
-                const buzz = {
-                    key,
-                    name,
-                    team,
-                    id
-                }; 
+                // Looking out for duplicates
+                if(inputs.filter(input => input.id == socket.id).length > 0) {
+                    console.log(`Received duplicate buzz from client ${socket.id}`)
+                } else {
+                    inputs.push({
+                        name: state.name,
+                        team: state.team,
+                        id: socket.id
+                    });
+                }
 
-                if(inputs.filter(buzz => buzz.id === socket.id).length <= 0) {
-                    inputs.push(buzz);
-                    if(inputs[0].id = socket.id) {
-                        io.to("clients").emit("win", inputs[0]);
-                    }
-                }
-                console.log("LEADERBOARD")
+                // Recording the inputs
+                console.log("---Buzz Record---")
                 for(let buzz of inputs) {
-                    console.log(buzz)
+                    console.info(buzz)
                 }
-                io.to("clients").emit("buzz", inputs);
+                console.log("---End--- \n")
+                
+                // Finding the user that has the hand
+                target = inputs[index].id;
+                io.to(target).emit("hand");
+
+
             })
 
             socket.on('auth', (input) => {
@@ -56,14 +60,17 @@ const ioHandler = (req, res) => {
             })
 
             socket.on('correct', () => {
-                io.to("clients").emit('stop');
+                target = inputs[index].id;
+                io.to(target).emit('correct');
             })
 
             socket.on('wrong', () => {
-                index = index + 1;
-                index = index % inputs.length;  
-                io.to("clients").emit('next', index, inputs);
-                console.log(`Current index is ${index}`)
+                target = inputs[index].id;
+                io.to(target).emit('wrong');
+            })
+
+            socket.on('next', () => {
+                index++
             })
         })
 

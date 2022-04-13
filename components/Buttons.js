@@ -21,7 +21,6 @@ const Buzzer = ({ socket, state }) => {
       ? `green` 
       : `blue`} borderRadius="3xl">
     <FaHandPaper size="25%" />
-    <h1>{state.hand ? `Your turn!` : ``}</h1>
   </Button>
 
 }
@@ -51,14 +50,14 @@ const Moderator = ({ socket, state }) => {
 
     <Flex  m="4" flex="1" w="100%" align="center" justify="center">
     <Button m="4" h="100%" disabled={state.ready} shadow="md" colorScheme="gray" flex="1" w="100%" borderRadius="3xl">
-        {state.inputs.length > 0 ? 
+        {state.winnerTeam ? 
         <Flex direction="column">
           <Heading >
-          {state.inputs[state.index].name ? state.inputs[state.index].name :  `...`} 
+          {state.winnerTeam} 
           </Heading>
 
           <Heading size="sm">
-          {state.inputs[state.index].team ? state.inputs[state.index].team : `...` } 
+          {state.winnerName } 
           </Heading>
         </Flex> :  
         `...`}
@@ -76,10 +75,10 @@ const Moderator = ({ socket, state }) => {
     </Flex>
 
     <Flex  m="4" flex="1" w="100%" align="center" justify="center">
-      <Button  m="4" h="100%" flex="1" disabled={!state.inputs.length > 0} onClick={correct} shadow="md" colorScheme="green"   borderRadius="3xl">
+      <Button  m="4" h="100%" flex="1" disabled={state.inputs.length > 0} onClick={correct} shadow="md" colorScheme="green"   borderRadius="3xl">
         <BiRefresh size="25%" />
       </Button>
-      <Button  m="4" h="100%" flex="1" disabled={!state.inputs.length > 0} onClick={wrong} shadow="md" colorScheme="red"  borderRadius="3xl">
+      <Button  m="4" h="100%" flex="1" disabled={state.inputs.length > 0} onClick={wrong} shadow="md" colorScheme="red"  borderRadius="3xl">
         <ImCross size="25%" />
       </Button>
     </Flex>

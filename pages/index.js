@@ -16,6 +16,8 @@ function Index() {
     correct: null,
     inputs: [],
     index: 0,
+    winnerName: null,
+    winnerTeam: null,
   })
 
   const [socket, setSocket] = useState(null);
@@ -47,17 +49,17 @@ function Index() {
       })
 
       socket.on('stop', () => {
-        setState(prevState => ({...prevState, ready: false, hand: null, correct: null, wrong: null}))
+        setState(prevState => ({...prevState, ready: false, hand: null, correct: null, wrong: null, winnerName: null, winnerTeam: null}))
         console.log('Received client side stop from server.')
       })
 
       socket.on('auth', (key, name, team) => {
-        setState(prevState => ({...prevState, key: key, name: name, team: team}))
+        setState(prevState => ({...prevState, key: key}))
         console.log('Received authentication from server')
       })
 
-      socket.on('hand', () => {
-        setState(prevState => ({...prevState, hand: true }));
+      socket.on('hand', (name, team) => {
+        setState(prevState => ({...prevState, hand: true, winner: name, winnerName: name, winnerTeam: team}));
       })
 
       socket.on('correct', () => {
@@ -67,6 +69,7 @@ function Index() {
 
       socket.on('wrong', () => {
         setState(prevState => ({...prevState, correct: null, wrong: true}))
+        wrong.play();
       })
 
 

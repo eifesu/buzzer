@@ -10,7 +10,13 @@ const Auth = ({socket, setState}) => {
         }))
 
         socket.emit('auth', input);
+        setState(prevState => ({...prevState,
+            name: input.name,
+            team: input.team,
+        }))
     }
+
+
     const [input, setInput] = useState({
         key: "",
         name: "",

@@ -49,7 +49,10 @@ const ioHandler = (req, res) => {
                 
                 // Finding the user that has the hand
                 target = inputs[index].id;
-                io.to(target).emit("hand");
+                let name = inputs[index].name;
+                let team = inputs[index].team;
+                let id = inputs[index].id;
+                io.to("clients").emit("hand", name, team, id);
 
 
             })
@@ -67,6 +70,8 @@ const ioHandler = (req, res) => {
             socket.on('wrong', () => {
                 target = inputs[index].id;
                 io.to(target).emit('wrong');
+                inputs = [];
+                io.to("clients").emit('start');
             })
 
             socket.on('next', () => {
